@@ -1,0 +1,5 @@
+# English strings go here for Rails i18n
+zh:
+  # my_label: "My label"
+  manage_usergroups_label_manager: "管理者"
+  manage_usergroups_label_group: "组"

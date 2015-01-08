@@ -1,0 +1,46 @@
+<% content_for :header_tags do %>
+    <style type="text/css" >
+        #principals label {display: block;}
+    </style>
+<% end %>
+
+<h2><%= link_to l(:label_group_plural), '/manage_usergroups/index' %> &#187; <%= h(@group) %></h2>
+<div class="splitcontentleft">
+
+<% if @group.users.any? %>
+  <table class="list users">
+    <thead><tr>
+      <th><%= l(:label_user) %></th>
+      <th style="width:10%"></th>
+    </tr></thead>
+    <tbody>
+    <% @group.users.sort.each do |user| %>
+      <tr id="user-<%= user.id %>" class="<%= cycle 'odd', 'even' %>">
+        <td class="user"><%= link_to_user user %></td>
+        <td><%= delete_link "/manage_usergroups/#{@group.id}/delete_user/#{user.id}" %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+</div>
+
+<div class="splitcontentright">
+  <%= form_for(@group,  :url => "/manage_usergroups/#{@group.id}/add_users",
+               :html => {:method => :post}) do |f| %>
+    <fieldset><legend><%=l(:label_user_new)%></legend>
+    <p><%= label_tag "user_search", l(:label_user_search) %><%= text_field_tag 'user_search', nil %></p>
+    <%= javascript_tag "observeSearchfield('user_search', null, '/manage_usergroups/#{@group.id}/autocomplete_for_user')" %>
+    
+    <p><%= submit_tag l(:button_add) %></p>
+    
+    <div id="users">
+      <%= manage_usergroups_render_principals_for_new_group_users(@group) %>
+    </div>
+
+    </fieldset>
+  <% end %>
+</div>
+

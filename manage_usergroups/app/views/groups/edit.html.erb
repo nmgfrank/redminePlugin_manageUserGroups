@@ -1,0 +1,15 @@
+<h2><%= link_to l(:label_group_plural), groups_path %> &#187; <%= h(@group) %></h2>
+
+<%
+
+    i_tabs = [{:name => 'general', :partial => 'groups/general', :label => :label_general},
+            {:name => 'users', :partial => 'groups/users', :label => :label_user_plural},
+            {:name => 'memberships', :partial => 'groups/memberships', :label => :label_project_plural},
+            {:name => 'group_managers', :partial => 'groups/manage_usergroups/group_managers', :label => :manage_usergroups_label_manager}
+            ]
+
+%>
+
+<%= render_tabs i_tabs %>
+
+<% html_title(l(:label_group), @group, l(:label_administration)) -%>

@@ -1,0 +1,178 @@
+<div class="splitcontentleft">
+
+<% if @group.users.any? %>
+    <%
+        manager_ids = []
+        manager_info = ManageUsergroups.where(["group_id = ?",@group.id])
+        manager_info.each do |manager_rela|
+            manager_ids.push(manager_rela.manager_id.to_i)
+        end    
+        
+        users_checked_list = []
+        users_unchecked_list = [] 
+        
+        @group.users.each do |user|
+            if manager_ids.include? user.id
+                users_checked_list.push(user)
+            else
+                users_unchecked_list.push(user)
+            end
+        
+        end   
+
+    %>
+   
+      <table class="list users">
+        <thead><tr>
+          <th><%= l(:label_user) %></th>
+          <th style="width:15%">Is Manager</th>
+        </tr></thead>
+        <tbody id="user_list_tbody">
+        <% users_checked_list.sort.each do |user| %>
+          <tr id="manager_user_<%= user.id %>" class="manager_tr">
+            <td class=""><%= link_to_user user %></td>
+            <td class="buttons">
+              <input class="manager" name="manager[]" 
+              type="checkbox" 
+              checked="checked"
+      
+              value="<%= user.id %>" />
+            </td>
+          </tr>
+        <% end %>
+        <% users_unchecked_list.sort.each do |user| %>
+          <tr id="manager_user_<%= user.id %>" class="manager_tr">
+            <td class=""><%= link_to_user user %></td>
+            <td class="buttons">
+              <input   class="manager" name="manager[]" 
+              type="checkbox" 
+              value="<%= user.id %>" />
+            </td>
+          </tr>
+        <% end %>       
+ 
+        </tbody>
+      </table>
+      
+      <input id="save_button" name="submit" type="submit" value="Save" />
+
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+
+</div>
+
+
+
+<% if @group.users.any? %>
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+    $("#save_button").click(function() {
+        manager_num = 0;
+        manager_user_ids = [];
+    
+        $(".manager").each(function() {
+            if (($(this).attr("checked") == true) || ($(this).attr("checked") == "checked")) {
+                manager_num += 1;
+                manager_user_ids.push($(this).val()); 
+            }   
+        });
+    
+        manager_ids_str = "";
+        for (var idx = 0; idx < manager_user_ids.length; idx++) {
+            manager_id = manager_user_ids[idx];
+            manager_ids_str += manager_id.toString() + ",";
+        }
+    
+        $.ajax({
+            type: "GET",
+            url: "/manage_usergroups/<%= @group.id %>/update",
+            data: {manager_num:manager_num, manager_ids_str:manager_ids_str},
+            dataType: "html",
+            success: function(data){
+                manager_list = eval("(" + data + ")");    
+                reorder_users(manager_list);
+            }
+        });  
+        
+        
+        
+          
+    });
+
+});
+
+
+
+function reorder_users(manager_list) {
+    tr_unchecked_list = [];
+    tr_checked_list = [];
+    
+    $(".manager_tr").each(function() {
+        tr_id = $(this).attr("id");
+        tr_id_array = tr_id.split("_");
+        if (tr_id_array.length > 2 && (manager_list.indexOf(parseInt(tr_id_array[2].trim())) != -1) ) {
+            tr_checked_list.push($("<p></p>").append($(this).clone(true)).html());
+         
+        } else {
+       
+            tr_unchecked_list.push($("<p></p>").append($(this).clone(true)).html());
+        }
+   
+    });
+    
+    $("#user_list_tbody").html('');
+    
+    for (var idx in tr_checked_list) {
+        $("#user_list_tbody").append(tr_checked_list[idx]);
+    }
+    
+    for (var idx in tr_unchecked_list) {
+        $("#user_list_tbody").append(tr_unchecked_list[idx]); 
+    }
+    
+    for (var idx in manager_list) {
+        manager_id = manager_list[idx];
+        $("#manager_user_" + manager_id).find("input").attr("checked","checked");
+    
+    }
+    
+    $(".manager_tr").each(function() {
+        tr_id = $(this).attr("id");
+        tr_id_array = tr_id.split("_");
+        if (tr_id_array.length > 2 && (manager_list.indexOf(parseInt(tr_id_array[2].trim())) != -1) ) {
+            $(this).find("input").attr("checked","checked");
+         
+        } else {
+            $(this).find("input").removeAttr("checked");
+        }        
+    });
+    
+    
+    
+
+}
+
+</script>
+
+
+
+<% end %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,21 @@
+<div>
+
+    <a href="/groups_admin_info_readonly" target="_blank" style="float:right">点击查看全部分组信息</a>
+
+    <div>
+        <table>
+            <tr style="font-size: 19px;"><th colspan="2"> 您可管理的组: </th></tr>
+            <% cnt = 0  %>
+
+            <%  @group_list.each do |group| %>
+                <%   cnt += 1 %>
+                <tr  style="font-size: 13px;"><td><%=  cnt  %>. </td><td><%= link_to group.name, {:action => 'edit', :id => group.id} %></td></tr>
+            <%  end %>
+        </table>
+    </div>
+
+
+
+
+
+</div>
